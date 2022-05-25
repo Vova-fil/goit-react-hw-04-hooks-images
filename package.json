@@ -2,7 +2,7 @@
   "name": "react-homework-template",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://vova-fil.github.io/goit-react-hw-04-hooks-image-finder/",
+  "homepage": "https://vova-fil.github.io/goit-react-hw-04-hooks-images/",
   "dependencies": {
     "@chakra-ui/spinner": "^1.2.6",
     "@testing-library/jest-dom": "^5.16.3",
