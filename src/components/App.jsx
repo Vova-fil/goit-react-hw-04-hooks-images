@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 
 import pixabayAPI from '../services/pixabay-api';
 import SearchBar from 'components/Searchbar';
@@ -8,117 +8,107 @@ import PixabayImageGallery from './ImageGallery';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export class App extends Component {
-  state = {
-    searchImage: '',
-    error: null,
-    status: 'idle',
-    images: [],
-    page: 1,
-    totalHits: '',
+export function App() {
+  const [searchImage, setSearchImage] = useState('');
+  const [error, setError] = useState(null);
+  const [status, setStatus] = useState('idle');
+  const [images, setImages] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalHits, setTotalHits] = useState(0);
+
+  const per_page = 12;
+
+  useEffect(() => {
+    if (!searchImage) {
+      return;
+    }
+    setStatus('pending');
+    const loadImages = () => {
+      pixabayAPI
+        .fetchPixabayImage(searchImage, page, per_page)
+        .then(response => {
+          if (response.hits.length === 0) {
+            toast.error(
+              'Sorry, there are no images matching your search query. Please try again.'
+            );
+            setStatus('idle');
+          } else {
+            if (page * per_page > response.total) {
+              toast.info(
+                'Sorry, there are no more images matching your search query.'
+              );
+              setImages(images => [...images, ...response.hits]);
+              setStatus('idle');
+            } else {
+              setImages(images => [...images, ...response.hits]);
+              setStatus('resolved');
+              setTotalHits(response.total);
+              toast.info(
+                `numbers of images ${
+                  response.total
+                }, number of page ${page} from the ${Math.ceil(
+                  response.total / per_page
+                )} pages `
+              );
+            }
+          }
+          scrollToBottom();
+        })
+        .catch(error => {
+          setError(error);
+          setStatus('rejected');
+        });
+    };
+
+    const loadImagesBySearch = () => {
+      loadImages();
+    };
+    loadImagesBySearch();
+  }, [page, searchImage]);
+
+  const handleFormSubmit = searchImage => {
+    resetPage();
+    setSearchImage(searchImage);
+    setImages([]);
   };
 
-  componentDidUpdate(prevProps, prevState) {
-    const prevSearch = prevState.searchImage;
-    const nextSearch = this.state.searchImage;
-    const prevPage = prevState.page;
-    const nextPage = this.state.page;
-
-    if (prevSearch !== nextSearch) {
-      this.loadImagesBySearch(nextSearch);
-    }
-
-    if (prevPage < nextPage) {
-      this.loadMoreImages(nextPage);
-    }
-    this.scrollToBottom();
-  }
-
-  loadImagesBySearch(searchImage) {
-    this.setState({ status: 'pending', images: [] });
-    const { page } = this.state;
-    pixabayAPI
-      .fetchPixabayImage(searchImage, page)
-      .then(imagesObj => {
-        if (imagesObj.hits.length === 0) {
-          toast.error(
-            'Sorry, there are no images matching your search query. Please try again.'
-          );
-          this.setState({ status: 'idle' });
-        } else {
-          toast.info(`количество картинок ${imagesObj.totalHits}`);
-          this.setState({
-            images: imagesObj.hits,
-            status: 'resolved',
-            totalHits: imagesObj.totalHits,
-          });
-          console.log(imagesObj.totalHits);
-        }
-      })
-      .catch(error => this.setState({ error, status: 'rejected' }));
-  }
-  loadMoreImages(page) {
-    this.setState({ status: 'pending' });
-    const { images, searchImage } = this.state;
-    pixabayAPI.fetchPixabayImage(searchImage, page).then(imagesObj => {
-      this.setState({
-        images: [...images, ...imagesObj.hits],
-        status: 'resolved',
-      });
-    });
-  }
-
-  handleFormSubmit = searchImage => {
-    this.resetPage();
-    this.setState({ searchImage: searchImage });
+  const resetPage = () => {
+    setPage(1);
   };
 
-  resetImages() {
-    this.setState({ images: [] });
-  }
+  const onButtonClick = () => {
+    setPage(page + 1);
+  };
 
-  resetPage() {
-    this.setState({ page: 1 });
-  }
-
-  onButtonClick() {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
-  }
-
-  scrollToBottom() {
+  const scrollToBottom = () => {
     window.scrollTo({
       top: document.documentElement.scrollHeight,
       behavior: 'smooth',
     });
-  }
+  };
 
-  render() {
-    const { images, status, error, page, totalHits } = this.state;
-    const loadMore = page < totalHits / 12;
+  const loadMore = page < totalHits / per_page;
 
-    return (
-      <div>
-        <SearchBar onSubmit={this.handleFormSubmit} />
-        <ToastContainer autoClose={4000} />
-        {images.length !== 0 && <PixabayImageGallery images={images} />}
-        {status === 'pending' && (
-          <div>
-            <Loader images={images} />
-          </div>
-        )}
-        {status === 'rejected' && (
-          <div role="alert">
-            <p>{error.message}</p>
-          </div>
-        )}
-        {status === 'resolved' && loadMore && (
-          <div>
-            <ButtonLoadMore onClick={() => this.onButtonClick()} />
-          </div>
-        )}
-      </div>
-    );
-  }
+  return (
+    <div>
+      <SearchBar onSubmit={handleFormSubmit} />
+      <ToastContainer autoClose={4000} />
+      {images.length !== 0 && <PixabayImageGallery images={images} />}
+      {status === 'pending' && (
+        <div>
+          <Loader images={images} />
+        </div>
+      )}
+      {status === 'rejected' && (
+        <div role="alert">
+          <p>{error.message}</p>
+        </div>
+      )}
+      {status === 'resolved' && loadMore && (
+        <div>
+          <ButtonLoadMore onClick={() => onButtonClick()} />
+        </div>
+      )}
+    </div>
+  );
 }
