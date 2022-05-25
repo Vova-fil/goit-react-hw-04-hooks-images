@@ -42,7 +42,7 @@ export default function SearchBar(props) {
           type="text"
           autocomplete="off"
           autoFocus
-          placeholder="image and photo search field"
+          placeholder="search field image and photo "
         />
       </SearchForm>
     </Searchbar>
