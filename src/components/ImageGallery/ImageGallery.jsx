@@ -1,11 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ImageGalleryItem from '../ImageGalleryItem';
-// import './ImageGallery.styled.js';
 import { ImageGallery } from './ImageGallery.styled.js';
 
 export default function PixabayImageGallery({ images }) {
-  console.log(images);
   return (
     <div>
       <ImageGallery>
@@ -17,7 +15,9 @@ export default function PixabayImageGallery({ images }) {
   );
 }
 PixabayImageGallery.propTypes = {
-  // images: PropTypes.object.isRequired
-  images: PropTypes.array.isRequired,
-  id: PropTypes.number.isRequired,
+  images: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+    })
+  ),
 };

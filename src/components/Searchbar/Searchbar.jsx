@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { FcSearch } from 'react-icons/fc';
@@ -10,7 +11,7 @@ import {
   SearchFormInput,
 } from './Searchbar.styled';
 
-export default function SearchBar(props) {
+export default function SearchBar({ onSubmit }) {
   const [searchImage, setSearchImage] = useState('');
 
   const handleSubmit = e => {
@@ -20,7 +21,7 @@ export default function SearchBar(props) {
       toast.warn('Please enter a valid request!', { theme: 'colored' });
       return;
     }
-    props.onSubmit(searchImage);
+    onSubmit(searchImage);
   };
 
   const handleChange = e => {
@@ -50,6 +51,6 @@ export default function SearchBar(props) {
 }
 
 SearchBar.propTypes = {
-  searchImage: PropTypes.string,
+  //searchImage: PropTypes.string,
   onSubmit: PropTypes.func.isRequired,
 };

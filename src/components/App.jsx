@@ -91,7 +91,7 @@ export function App() {
 
   return (
     <div>
-      <SearchBar onSubmit={handleFormSubmit} />
+      <SearchBar onSubmit={handleFormSubmit}  />
       <ToastContainer autoClose={4000} />
       {images.length !== 0 && <PixabayImageGallery images={images} />}
       {status === 'pending' && (

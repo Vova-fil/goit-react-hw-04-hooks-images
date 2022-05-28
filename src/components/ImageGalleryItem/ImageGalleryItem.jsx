@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-
+import React from 'react';
 import { ImageItem, ImageGalleryItemImage } from './ImageGalleryItem.styled.js';
 import Modal from '../Modal';
 
 export default function ImageGalleryItem({
-  image: { webFormatURL, tags, largeImageURL },
+  image: { webformatURL, tags, largeImageURL },
 }) {
   const [showModal, setShowModal] = useState(false);
 
@@ -16,7 +16,7 @@ export default function ImageGalleryItem({
   return (
     <>
       <ImageItem onClick={toggleModal}>
-        <ImageGalleryItemImage src={webFormatURL} alt={tags} loading="lazy" />
+        <ImageGalleryItemImage src={webformatURL} alt={tags} loading="lazy" />
       </ImageItem>
       {showModal && (
         <Modal onClose={toggleModal}>
@@ -28,7 +28,7 @@ export default function ImageGalleryItem({
 }
 
 ImageGalleryItem.propTypes = {
-  webFormatURL: PropTypes.string.isRequired,
+  webformatURL: PropTypes.string.isRequired,
   tags: PropTypes.string.isRequired,
   largeImageURL: PropTypes.string.isRequired,
 };
